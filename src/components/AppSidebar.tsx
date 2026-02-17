@@ -1,4 +1,4 @@
-import { Heart, LayoutDashboard, Stethoscope, Users, LogOut, Shield } from "lucide-react";
+import { Heart, LayoutDashboard, Stethoscope, Users, LogOut, Shield, Activity, Trash2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
@@ -18,13 +19,18 @@ export function AppSidebar() {
   const location = useLocation();
   const { role, user, signOut } = useAuth();
 
-  const menuItems = [
+  const mainItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-    { title: "Doctors", icon: Stethoscope, path: "/doctors", roles: ["admin"] as string[] },
+    { title: "Doctors", icon: Stethoscope, path: "/doctors", roles: ["admin"] },
     { title: "Patients", icon: Users, path: "/patients" },
   ];
 
-  const filteredItems = menuItems.filter(
+  const adminItems = [
+    { title: "Audit Logs", icon: Activity, path: "/audit-logs" },
+    { title: "Deleted Records", icon: Trash2, path: "/deleted-records" },
+  ];
+
+  const filteredMain = mainItems.filter(
     (item) => !item.roles || (role && item.roles.includes(role))
   );
 
@@ -46,13 +52,9 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
-            {filteredItems.map((item) => (
+            {filteredMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  isActive={location.pathname === item.path}
-                  onClick={() => navigate(item.path)}
-                  tooltip={item.title}
-                >
+                <SidebarMenuButton isActive={location.pathname === item.path} onClick={() => navigate(item.path)} tooltip={item.title}>
                   <item.icon className="h-4 w-4" />
                   <span>{item.title}</span>
                 </SidebarMenuButton>
@@ -60,6 +62,25 @@ export function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {role === "admin" && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <SidebarGroupLabel>Administration</SidebarGroupLabel>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton isActive={location.pathname === item.path} onClick={() => navigate(item.path)} tooltip={item.title}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-4">
@@ -74,11 +95,7 @@ export function AppSidebar() {
               <p className="text-xs text-sidebar-foreground/60 capitalize">{role ?? "user"}</p>
             </div>
           </div>
-          <button
-            onClick={signOut}
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground"
-            title="Sign out"
-          >
+          <button onClick={signOut} className="text-sidebar-foreground/60 hover:text-sidebar-foreground" title="Sign out">
             <LogOut className="h-4 w-4" />
           </button>
         </div>

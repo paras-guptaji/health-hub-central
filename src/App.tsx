@@ -13,9 +13,17 @@ import ResetPassword from "@/pages/ResetPassword";
 import Dashboard from "@/pages/Dashboard";
 import Doctors from "@/pages/Doctors";
 import Patients from "@/pages/Patients";
+import AuditLogs from "@/pages/AuditLogs";
+import DeletedRecords from "@/pages/DeletedRecords";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const ProtectedPage = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
+    <DashboardLayout>{children}</DashboardLayout>
+  </ProtectedRoute>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -29,36 +37,11 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <Dashboard />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doctors"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <Doctors />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/patients"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <Patients />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
+            <Route path="/doctors" element={<ProtectedPage><Doctors /></ProtectedPage>} />
+            <Route path="/patients" element={<ProtectedPage><Patients /></ProtectedPage>} />
+            <Route path="/audit-logs" element={<ProtectedPage><AuditLogs /></ProtectedPage>} />
+            <Route path="/deleted-records" element={<ProtectedPage><DeletedRecords /></ProtectedPage>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
