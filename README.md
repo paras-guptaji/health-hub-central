@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# 🏥 Healthcare Management System
 
-## Project info
+A production-ready healthcare management platform built with React + Lovable Cloud (PostgreSQL, Auth, Storage, Edge Functions).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Phase 1: Foundation — Auth & Dashboard Shell
 
-There are several ways of editing your application.
+### Authentication System
+- Email-based signup and login with Cloud Auth
+- Two roles: **Admin** and **Doctor** (stored in a separate `user_roles` table with RLS and a `has_role` security definer function)
+- Protected routes — unauthenticated users redirected to login
+- Password reset flow
+- Clean login/signup pages with medical-themed blue/white design
 
-**Use Lovable**
+### Dashboard Shell
+- Sidebar navigation (collapsible, mobile-responsive)
+- Top header with user info and logout
+- Summary cards: Total Doctors, Total Patients, Recently Added Patients (placeholder data initially)
+- Role-based menu: Admins see all options, Doctors see limited view
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Phase 2: Doctor Management
 
-**Use your preferred IDE**
+### Doctor CRUD (Admin only)
+- Add doctor form: Name, Specialization, Email, Phone, Experience, Profile Image
+- Profile image upload to Cloud Storage, storing only the URL in the database
+- Edit doctor details (including image replacement)
+- Delete doctor (removes image from storage)
+- Doctors list with search/filter and profile photos
+- Frontend + backend validation (Zod + edge functions)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Phase 3: Patient Management
 
-Follow these steps:
+### Patient CRUD
+- Add/edit/delete patients
+- Fields: Name, Age, Gender, Contact, Diagnosis, Assigned Doctor (dropdown), Medical Report Image
+- Medical report image upload to Cloud Storage
+- Assign patients to doctors from dropdown
+- Patient list with filtering and search
+- Image cleanup on patient deletion
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Phase 4: Dashboard & Polish
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Live Dashboard Stats
+- Real counts: Total Doctors, Total Patients
+- Recently added patients list with timestamps
+- Quick-action buttons (Add Doctor, Add Patient)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### UI Quality
+- Loading states, success/error toast notifications
+- Fully responsive across mobile, tablet, desktop
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Phase 5: Compliance & Hardening
 
-**Use GitHub Codespaces**
+### Audit Log & Activity Tracking
+- `audit_logs` table recording all create/update/delete actions with user ID, timestamp, action type, table name, and old/new values
+- Activity tracking dashboard for admins showing recent system activity
+- Error logging table capturing edge function failures and API errors
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Soft Deletes
+- Add `deleted_at` column to doctors and patients tables
+- All delete operations set `deleted_at` instead of removing rows
+- RLS policies and queries filter out soft-deleted records by default
+- Admin-only view to see and restore deleted records
 
-## What technologies are used for this project?
+### Strict RLS Policies
+- Admins: full read/write on all tables
+- Doctors: read-only on their own profile, read/write on their assigned patients only
+- Doctor-patient relationship enforcement — doctors can only access patients assigned to them
+- All policies use the `has_role` security definer function to prevent recursion
+- No public/anon access to any table
 
-This project is built with:
+### Secure File Access
+- Signed URLs with expiration for medical report images (not publicly accessible)
+- Storage bucket RLS restricting uploads/downloads to authenticated users with appropriate roles
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Edge Function Validation Layer
+- All mutations (create/update/delete) routed through edge functions
+- Input sanitization and Zod schema validation server-side
+- Rate limiting on auth and mutation endpoints
+- Consistent error response format with error codes
 
-## How can I deploy this project?
+### Doctor-Patient Relationship Enforcement
+- Foreign key constraint linking patients to doctors
+- RLS policies ensuring doctors only query/modify their own patients
+- Admin override for full access
+- Cascade handling when a doctor is soft-deleted (reassignment workflow)
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Design Direction
+- **Color palette**: Medical blue (#2563EB) and white with soft gray accents
+- **Typography**: Clean, professional sans-serif
+- **Components**: Cards, data tables, modals for forms, sidebar navigation
+- **Responsive**: Mobile-first with collapsible sidebar
