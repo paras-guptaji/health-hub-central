@@ -38,9 +38,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <div className="rounded-lg bg-sidebar-primary p-1.5">
-            <Heart className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
+         
           <div>
             <h2 className="text-sm font-bold text-sidebar-foreground">HealthCare</h2>
             <p className="text-xs text-sidebar-foreground/60">Management System</p>
